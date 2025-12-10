@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { 
@@ -11,18 +10,17 @@ import {
 } from '@/components/ui/select';
 import { technologies, SkillLevel, skillLevelLabels, skillLevelColors, Technology } from '@/data/technologies';
 import { mockUser } from '@/data/mockUser';
-import { Sparkles, Filter, Search } from 'lucide-react';
+import { Sparkles, Search, Zap } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 const categories = [
-  { id: 'all', label: 'All Technologies' },
+  { id: 'all', label: 'All' },
   { id: 'frontend', label: 'Frontend' },
   { id: 'backend', label: 'Backend' },
   { id: 'mobile', label: 'Mobile' },
   { id: 'cloud', label: 'Cloud' },
   { id: 'database', label: 'Database' },
   { id: 'language', label: 'Languages' },
-  { id: 'tools', label: 'Tools' },
 ];
 
 export default function Skills() {
@@ -48,38 +46,49 @@ export default function Skills() {
 
   const getSkillLevel = (techId: string): SkillLevel => skills[techId] || null;
 
+  const masteredCount = Object.values(skills).filter(l => l === 'expert' || l === 'good').length;
+  const totalSkills = Object.values(skills).filter(l => l && l !== 'notInterested').length;
+
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-6 animate-fade-in">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold flex items-center gap-3">
-          <Sparkles className="w-8 h-8 text-primary" />
-          Skills Matrix
-        </h1>
-        <p className="text-muted-foreground mt-2">
-          Rate your proficiency in each technology to build your skill profile
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            <Sparkles className="w-6 h-6 text-primary" />
+            Skills Matrix
+          </h1>
+          <p className="text-muted-foreground text-sm mt-1">
+            Rate your proficiency to level up
+          </p>
+        </div>
+        
+        <div className="flex items-center gap-2 text-sm">
+          <Zap className="w-4 h-4 text-primary" />
+          <span className="text-muted-foreground">Progress:</span>
+          <span className="font-bold gradient-text">{masteredCount}/{totalSkills}</span>
+        </div>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1 max-w-md">
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1 max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Search technologies..."
+            placeholder="Search..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            className="pl-9 bg-secondary/50 border-border/50"
           />
         </div>
         <div className="flex gap-2 flex-wrap">
           {categories.map(category => (
             <Button
               key={category.id}
-              variant={selectedCategory === category.id ? 'default' : 'outline'}
+              variant={selectedCategory === category.id ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setSelectedCategory(category.id)}
-              className="transition-all duration-200"
+              className={selectedCategory === category.id ? 'shadow-glow' : ''}
             >
               {category.label}
             </Button>
@@ -88,7 +97,7 @@ export default function Skills() {
       </div>
 
       {/* Skills Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
         {filteredTechnologies.map((tech, index) => (
           <SkillCard
             key={tech.id}
@@ -102,7 +111,7 @@ export default function Skills() {
 
       {filteredTechnologies.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-muted-foreground">No technologies found matching your criteria</p>
+          <p className="text-muted-foreground">No technologies found</p>
         </div>
       )}
     </div>
@@ -118,74 +127,67 @@ interface SkillCardProps {
 
 function SkillCard({ technology, level, onLevelChange, index }: SkillCardProps) {
   return (
-    <Card 
-      className="skill-card hover:shadow-lg transition-all duration-300 group"
-      style={{ animationDelay: `${index * 50}ms` }}
+    <div 
+      className="skill-card glass-card p-4 group"
+      style={{ animationDelay: `${index * 30}ms` }}
     >
-      <CardContent className="p-5">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div 
-              className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl bg-secondary group-hover:scale-110 transition-transform duration-300"
-            >
-              {technology.icon}
-            </div>
-            <div>
-              <h3 className="font-semibold">{technology.name}</h3>
-              <p className="text-xs text-muted-foreground capitalize">{technology.category}</p>
-            </div>
-          </div>
+      <div className="flex items-center gap-3 mb-3">
+        <div className="w-10 h-10 rounded-lg bg-secondary/80 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+          {technology.icon}
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-medium text-sm truncate">{technology.name}</h3>
           {level && (
             <Badge 
               variant={skillLevelColors[level] as any}
-              className="animate-scale-in"
+              className="text-[10px] mt-1"
             >
               {skillLevelLabels[level]}
             </Badge>
           )}
         </div>
+      </div>
 
-        <Select
-          value={level || ''}
-          onValueChange={(value) => onLevelChange(value as SkillLevel)}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select your level" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="expert">
-              <span className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-gradient-to-r from-primary to-accent" />
-                Expert
-              </span>
-            </SelectItem>
-            <SelectItem value="good">
-              <span className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-cyan" />
-                Good
-              </span>
-            </SelectItem>
-            <SelectItem value="beginner">
-              <span className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-success" />
-                Beginner
-              </span>
-            </SelectItem>
-            <SelectItem value="interested">
-              <span className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-warning" />
-                Interested
-              </span>
-            </SelectItem>
-            <SelectItem value="notInterested">
-              <span className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-muted-foreground" />
-                Not Interested
-              </span>
-            </SelectItem>
-          </SelectContent>
-        </Select>
-      </CardContent>
-    </Card>
+      <Select
+        value={level || ''}
+        onValueChange={(value) => onLevelChange(value as SkillLevel)}
+      >
+        <SelectTrigger className="w-full h-8 text-xs bg-secondary/50 border-border/50">
+          <SelectValue placeholder="Select level" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="expert">
+            <span className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-gradient-to-r from-primary to-accent" />
+              Expert
+            </span>
+          </SelectItem>
+          <SelectItem value="good">
+            <span className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-cyan" />
+              Good
+            </span>
+          </SelectItem>
+          <SelectItem value="beginner">
+            <span className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-success" />
+              Beginner
+            </span>
+          </SelectItem>
+          <SelectItem value="interested">
+            <span className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-warning" />
+              Interested
+            </span>
+          </SelectItem>
+          <SelectItem value="notInterested">
+            <span className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-muted-foreground" />
+              Not Interested
+            </span>
+          </SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
   );
 }

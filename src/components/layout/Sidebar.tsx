@@ -2,53 +2,30 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Sparkles, 
-  User, 
-  Users, 
   LogOut,
-  ChevronLeft,
-  ChevronRight
+  Gamepad2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { useState } from 'react';
 
 const navItems = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/skills', label: 'Skills', icon: Sparkles },
-  { path: '/profile', label: 'Profile', icon: User },
-  { path: '/team', label: 'Team Insights', icon: Users },
 ];
 
 export function Sidebar() {
-  const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
 
   return (
-    <aside
-      className={cn(
-        "fixed left-0 top-0 z-40 h-screen bg-card border-r border-border transition-all duration-300 flex flex-col",
-        collapsed ? "w-16" : "w-64"
-      )}
-    >
+    <aside className="fixed left-0 top-0 z-40 h-screen w-20 bg-card/50 backdrop-blur-xl border-r border-border/50 flex flex-col items-center py-6">
       {/* Logo */}
-      <div className="h-16 flex items-center justify-between px-4 border-b border-border">
-        {!collapsed && (
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <span className="font-bold text-lg gradient-text">SkillMap</span>
-          </div>
-        )}
-        {collapsed && (
-          <div className="w-8 h-8 mx-auto rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-            <Sparkles className="w-5 h-5 text-primary-foreground" />
-          </div>
-        )}
+      <div className="mb-8">
+        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-glow animate-pulse-glow">
+          <Gamepad2 className="w-6 h-6 text-primary-foreground" />
+        </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 py-6 px-3 space-y-2">
+      <nav className="flex-1 flex flex-col items-center gap-3">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (
@@ -56,47 +33,33 @@ export function Sidebar() {
               key={item.path}
               to={item.path}
               className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group",
+                "relative w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 group",
                 isActive
-                  ? "bg-primary text-primary-foreground shadow-md"
+                  ? "bg-primary text-primary-foreground shadow-glow"
                   : "text-muted-foreground hover:bg-secondary hover:text-foreground"
               )}
+              title={item.label}
             >
+              {isActive && (
+                <div className="absolute inset-0 rounded-xl animate-pulse-ring border-2 border-primary" />
+              )}
               <item.icon className={cn(
-                "w-5 h-5 flex-shrink-0 transition-transform duration-200",
+                "w-5 h-5 transition-transform duration-200",
                 !isActive && "group-hover:scale-110"
               )} />
-              {!collapsed && (
-                <span className="font-medium">{item.label}</span>
-              )}
             </NavLink>
           );
         })}
       </nav>
 
-      {/* Footer */}
-      <div className="p-3 border-t border-border space-y-2">
-        <NavLink
-          to="/"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all duration-200"
-        >
-          <LogOut className="w-5 h-5 flex-shrink-0" />
-          {!collapsed && <span className="font-medium">Logout</span>}
-        </NavLink>
-        
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setCollapsed(!collapsed)}
-          className="w-full justify-center"
-        >
-          {collapsed ? (
-            <ChevronRight className="w-4 h-4" />
-          ) : (
-            <ChevronLeft className="w-4 h-4" />
-          )}
-        </Button>
-      </div>
+      {/* Logout */}
+      <NavLink
+        to="/"
+        className="w-12 h-12 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-destructive/20 hover:text-destructive transition-all duration-200"
+        title="Logout"
+      >
+        <LogOut className="w-5 h-5" />
+      </NavLink>
     </aside>
   );
 }
