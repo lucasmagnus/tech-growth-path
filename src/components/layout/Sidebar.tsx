@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Sparkles, 
@@ -6,6 +6,8 @@ import {
   Gamepad2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/useAuth';
+import { toast } from 'sonner';
 
 const navItems = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -14,6 +16,17 @@ const navItems = [
 
 export function Sidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { signOut } = useAuth();
+
+  const handleLogout = async () => {
+    const { error } = await signOut();
+    if (error) {
+      toast.error('Failed to sign out');
+    } else {
+      navigate('/');
+    }
+  };
 
   return (
     <aside className="fixed left-0 top-0 z-40 h-screen w-20 bg-card/50 backdrop-blur-xl border-r border-border/50 flex flex-col items-center py-6">
@@ -53,13 +66,13 @@ export function Sidebar() {
       </nav>
 
       {/* Logout */}
-      <NavLink
-        to="/"
+      <button
+        onClick={handleLogout}
         className="w-12 h-12 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-destructive/20 hover:text-destructive transition-all duration-200"
         title="Logout"
       >
         <LogOut className="w-5 h-5" />
-      </NavLink>
+      </button>
     </aside>
   );
 }
